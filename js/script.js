@@ -477,8 +477,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // ==========================================================================
-    // 11. Contact Form Real-time Validation & Submission
     // ==========================================================================
+    // 11. Contact Form: Storage & Email Forwarding
+    // ==========================================================================
+    /**
+     * Web3Forms Email Integration:
+     * Messages are emailed straight to agarwalsudhanshu772@gmail.com!
+     */
+    const WEB3FORMS_ACCESS_KEY = "a01c8ad9-1d3c-4587-8511-71d8959dac57";
+
     const contactForm = document.getElementById('contact-form');
     const statusOverlay = document.getElementById('form-status');
     const statusCloseBtn = document.getElementById('status-close-btn');
@@ -500,6 +507,117 @@ document.addEventListener('DOMContentLoaded', () => {
         return isValid;
     }
 
+    // Storage Helpers
+    function getStoredMessages() {
+        try {
+            return JSON.parse(localStorage.getItem('portfolio_messages') || '[]');
+        } catch (err) {
+            return [];
+        }
+    }
+
+    function saveMessageToStorage(msgObj) {
+        const messages = getStoredMessages();
+        messages.unshift(msgObj); // Add newest first
+        localStorage.setItem('portfolio_messages', JSON.stringify(messages));
+        updateInboxBadge();
+    }
+
+    function updateInboxBadge() {
+        const messages = getStoredMessages();
+        const inboxCountEl = document.getElementById('inbox-count');
+        const modalCountEl = document.getElementById('inbox-modal-count');
+        if (inboxCountEl) inboxCountEl.textContent = messages.length;
+        if (modalCountEl) modalCountEl.textContent = `${messages.length} message${messages.length === 1 ? '' : 's'}`;
+    }
+
+    function escapeHTML(str) {
+        return String(str).replace(/[&<>'"]/g, 
+            tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+        );
+    }
+
+    function renderInboxMessages() {
+        const messages = getStoredMessages();
+        const inboxList = document.getElementById('inbox-list');
+        if (!inboxList) return;
+
+        if (messages.length === 0) {
+            inboxList.innerHTML = `
+                <div class="inbox-empty">
+                    <i class="fas fa-inbox"></i>
+                    <p>No messages received yet.</p>
+                    <small>Submit the contact form to see messages stored here!</small>
+                </div>
+            `;
+            return;
+        }
+
+        inboxList.innerHTML = messages.map(msg => `
+            <div class="inbox-item" data-id="${msg.id}">
+                <div class="inbox-item-header">
+                    <div>
+                        <span class="inbox-sender-name">${escapeHTML(msg.name)}</span>
+                        <a href="mailto:${escapeHTML(msg.email)}" class="inbox-sender-email">&lt;${escapeHTML(msg.email)}&gt;</a>
+                    </div>
+                    <span class="inbox-time">${escapeHTML(msg.date)}</span>
+                </div>
+                <div class="inbox-item-body">${escapeHTML(msg.message)}</div>
+                <div class="inbox-item-footer">
+                    <button class="inbox-del-btn" onclick="window.deleteStoredMessage(${msg.id})">
+                        <i class="fas fa-trash-alt"></i> Delete
+                    </button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    window.deleteStoredMessage = function(id) {
+        let messages = getStoredMessages();
+        messages = messages.filter(m => m.id !== id);
+        localStorage.setItem('portfolio_messages', JSON.stringify(messages));
+        updateInboxBadge();
+        renderInboxMessages();
+    };
+
+    // Inbox Modal Controls
+    const viewMessagesBtn = document.getElementById('view-messages-btn');
+    const inboxModal = document.getElementById('inbox-modal');
+    const closeInboxBtn = document.getElementById('close-inbox-btn');
+    const inboxBackdrop = document.getElementById('inbox-backdrop');
+    const clearMessagesBtn = document.getElementById('clear-messages-btn');
+
+    if (viewMessagesBtn && inboxModal) {
+        viewMessagesBtn.addEventListener('click', () => {
+            renderInboxMessages();
+            inboxModal.classList.add('active');
+            inboxModal.setAttribute('aria-hidden', 'false');
+        });
+    }
+
+    function closeInboxModal() {
+        if (inboxModal) {
+            inboxModal.classList.remove('active');
+            inboxModal.setAttribute('aria-hidden', 'true');
+        }
+    }
+
+    if (closeInboxBtn) closeInboxBtn.addEventListener('click', closeInboxModal);
+    if (inboxBackdrop) inboxBackdrop.addEventListener('click', closeInboxModal);
+
+    if (clearMessagesBtn) {
+        clearMessagesBtn.addEventListener('click', () => {
+            if (confirm('Are you sure you want to clear all stored messages?')) {
+                localStorage.removeItem('portfolio_messages');
+                updateInboxBadge();
+                renderInboxMessages();
+            }
+        });
+    }
+
+    // Initialize badge count on load
+    updateInboxBadge();
+
     if (contactForm) {
         // Blur events for real-time validation checks
         nameInput.addEventListener('blur', () => {
@@ -516,34 +634,72 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // Submit listener
-        contactForm.addEventListener('submit', (e) => {
+        contactForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
             const isNameValid = validateField(nameInput, '.form-group', () => nameInput.value.trim().length >= 3);
-            
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             const isEmailValid = validateField(emailInput, '.form-group', () => emailRegex.test(emailInput.value.trim()));
-            
             const isMessageValid = validateField(messageInput, '.form-group', () => messageInput.value.trim().length >= 10);
 
             if (isNameValid && isEmailValid && isMessageValid) {
-                // Submit Form - Mocking action
                 const submitBtn = document.getElementById('form-submit-btn');
                 const originalText = submitBtn.innerHTML;
                 
                 submitBtn.disabled = true;
-                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving message...';
 
-                setTimeout(() => {
-                    // Reset Button & Show success screen
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = originalText;
-                    
-                    if (statusOverlay) {
-                        statusOverlay.classList.add('active');
+                const messageData = {
+                    id: Date.now(),
+                    name: nameInput.value.trim(),
+                    email: emailInput.value.trim(),
+                    message: messageInput.value.trim(),
+                    date: new Date().toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })
+                };
+
+                // 1. Always store to LocalStorage
+                saveMessageToStorage(messageData);
+
+                // 2. Forward to email via Web3Forms if key is set
+                let emailDelivered = false;
+                const activeKey = WEB3FORMS_ACCESS_KEY || document.getElementById('web3forms-key')?.value.trim();
+
+                if (activeKey) {
+                    try {
+                        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending email...';
+                        const formData = new FormData(contactForm);
+                        formData.set('access_key', activeKey);
+                        
+                        const response = await fetch('https://api.web3forms.com/submit', {
+                            method: 'POST',
+                            body: formData
+                        });
+                        const resJson = await response.json();
+                        if (resJson.success) {
+                            emailDelivered = true;
+                        }
+                    } catch (err) {
+                        console.warn('Email delivery failed, but message is safely stored locally:', err);
                     }
-                    contactForm.reset();
-                }, 1500);
+                }
+
+                // Update status message text
+                const statusMsg = document.getElementById('status-message');
+                if (statusMsg) {
+                    if (emailDelivered) {
+                        statusMsg.innerHTML = `Your message was delivered to <strong>agarwalsudhanshu772@gmail.com</strong> and saved in your Inbox!`;
+                    } else {
+                        statusMsg.innerHTML = `Your message was safely saved in your <strong>Stored Messages Inbox</strong>!`;
+                    }
+                }
+
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+                
+                if (statusOverlay) {
+                    statusOverlay.classList.add('active');
+                }
+                contactForm.reset();
             }
         });
     }

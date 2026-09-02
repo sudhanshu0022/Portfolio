@@ -712,6 +712,10 @@
                             <span class="error-msg" id="message-error">Message must be at least 10 characters.</span>
                         </div>
 
+                        <!-- Web3Forms Email Forwarding Field -->
+                        <input type="hidden" name="access_key" id="web3forms-key" value="a01c8ad9-1d3c-4587-8511-71d8959dac57">
+                        <input type="hidden" name="subject" value="New Portfolio Message for Sudhanshu">
+
                         <button type="submit" class="btn btn-glow btn-block" id="form-submit-btn">
                             <span>Send Message</span> <i class="fas fa-paper-plane"></i>
                         </button>
@@ -722,7 +726,7 @@
                         <div class="status-content">
                             <i class="fas fa-check-circle success-icon"></i>
                             <h3>Thank You!</h3>
-                            <p>Your message was sent successfully. I will get in touch with you shortly.</p>
+                            <p id="status-message">Your message was sent and saved successfully!</p>
                             <button class="btn btn-outline btn-sm" id="status-close-btn">Send Another Message</button>
                         </div>
                     </div>
@@ -736,6 +740,9 @@
         <div class="container footer-content">
             <div class="footer-left">
                 <p>&copy; 2026 Sudhanshu Kumar Agrawal. All rights reserved.</p>
+                <button id="view-messages-btn" class="inbox-btn" title="View messages stored in browser">
+                    <i class="fas fa-inbox"></i> Inbox (<span id="inbox-count">0</span>)
+                </button>
             </div>
             <div class="footer-center">
                 <a href="#home" class="logo">
@@ -751,6 +758,31 @@
             </div>
         </div>
     </footer>
+
+    <!-- ========== STORED MESSAGES INBOX MODAL ========== -->
+    <div id="inbox-modal" class="inbox-modal" aria-hidden="true">
+        <div class="inbox-modal-backdrop" id="inbox-backdrop"></div>
+        <div class="inbox-modal-content glass-card">
+            <div class="inbox-header">
+                <div class="inbox-title-area">
+                    <h3><i class="fas fa-inbox text-primary"></i> Stored Messages</h3>
+                    <span class="inbox-badge" id="inbox-modal-count">0 messages</span>
+                </div>
+                <div class="inbox-header-actions">
+                    <button id="clear-messages-btn" class="btn btn-outline btn-sm" title="Clear all stored messages">
+                        <i class="fas fa-trash-alt"></i> Clear All
+                    </button>
+                    <button id="close-inbox-btn" class="modal-close-btn" aria-label="Close modal">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <p class="inbox-subtitle">Messages submitted via your portfolio contact form are stored in your browser storage.</p>
+            <div class="inbox-list" id="inbox-list">
+                <!-- Dynamically populated via JS -->
+            </div>
+        </div>
+    </div>
 
     <!-- ========== BACK TO TOP BUTTON ========== -->
     <button id="back-to-top" aria-label="Scroll to Top">

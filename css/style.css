@@ -1757,3 +1757,228 @@ img {
         text-align: center;
     }
 }
+
+/* ==========================================================================
+   15. Inbox & Stored Messages Modal
+   ========================================================================== */
+.footer-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.inbox-btn {
+    background: rgba(59, 130, 246, 0.15);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    color: var(--color-primary);
+    padding: 0.35rem 0.85rem;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: var(--transition-fast);
+}
+
+.inbox-btn:hover {
+    background: var(--color-primary);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.inbox-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10001;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: var(--transition-smooth);
+    padding: 1.5rem;
+}
+
+.inbox-modal.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.inbox-modal-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(10, 15, 29, 0.75);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.inbox-modal-content {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 650px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    padding: 2rem;
+    overflow: hidden;
+}
+
+.inbox-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.4rem;
+}
+
+.inbox-title-area {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.inbox-title-area h3 {
+    font-family: var(--font-heading);
+    font-size: 1.4rem;
+    margin: 0;
+}
+
+.inbox-badge {
+    background: rgba(59, 130, 246, 0.2);
+    color: var(--color-accent);
+    padding: 0.2rem 0.6rem;
+    border-radius: 50px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.inbox-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.modal-close-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.3rem;
+    cursor: pointer;
+    transition: color 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-close-btn:hover {
+    color: #EF4444;
+}
+
+.inbox-subtitle {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 1.2rem;
+}
+
+.inbox-list {
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding-right: 0.3rem;
+    max-height: 50vh;
+}
+
+.inbox-item {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-glass);
+    border-radius: 12px;
+    padding: 1.2rem;
+    transition: var(--transition-fast);
+}
+
+.inbox-item:hover {
+    border-color: var(--border-glass-active);
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.inbox-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.5rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.inbox-sender-name {
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--text-primary);
+}
+
+.inbox-sender-email {
+    font-size: 0.85rem;
+    color: var(--color-accent);
+    margin-left: 0.4rem;
+}
+
+.inbox-time {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.inbox-item-body {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.inbox-item-footer {
+    margin-top: 0.8rem;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.inbox-del-btn {
+    background: transparent;
+    border: none;
+    color: #EF4444;
+    font-size: 0.8rem;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.inbox-del-btn:hover {
+    opacity: 1;
+}
+
+.inbox-empty {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--text-muted);
+}
+
+.inbox-empty i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.4;
+    display: block;
+}
+
